@@ -27,6 +27,16 @@ const cxn = mongoose.connection
 // Schema and Models
 ////////////////////
 
+// Schema, the definition of out data type 
+// model, the object for working with our data type
+const todoSchema = new mongoose.Schema({
+    text: String,
+    completed: Boolean
+},
+ {timestamps: true})
+
+//////////////Model////////////////
+ const Todo = mongoose.model("Todo", todoSchema)
 
 //////////////////////////
 //Create Express Application
@@ -47,8 +57,25 @@ app.use("/static", express.static("static")) // serve files statically
 ///Routes 
 /////////////////////////
 
-app.get("/",(req,res)=>{
-    res.send("Hello World")
+app.get("/", async(req,res)=>{
+    //go get todos
+    const todos = await Todo.find({}).catch((err) => res.send(err))
+    //render index.ejs
+    res.render("index.ejs",{todos})
+})
+
+
+app.get("/todo/seed", async (req, res)=>{
+    // Seed routes resets the data base (delete all existing todos)
+   await Todo.remove({}).catch((err) => res.send(err))
+   // add sample todo
+   const todos = await Todo.create([
+       {text: "eat breakfast", completed: false},
+       {text: "eat lunch", completed: false},
+       {text: "eat dinner", completed: false}
+   ]).catch((err) => res.send(err))
+   ///send the todos as json
+   res.json(todos)
 })
 
 ////////////////////////
