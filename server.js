@@ -6,6 +6,7 @@ const express = require("express");// Web framework
 const mongoose = require("mongoose");// Object Document Manager (Work with DB)
 const methodOverride = require("method-override");//Override request method
 const morgan = require("morgan");//Logging requests
+const { reset } = require("nodemon");
 
 // Setup Database Connection///
 
@@ -78,6 +79,24 @@ app.get("/todo/seed", async (req, res)=>{
    res.json(todos)
 })
 
+app.post("/todo", async(req,res)=>{
+    //creat the todo
+    await Todo.create(req.body).catch((err)=>res.send(err))
+    //redirect back to main page
+    res.redirect("/")
+})
+
+app.put("/todo/:id", async (req,res)=>{
+    // get the id from params
+    const id = req.params.id
+    // get the todo to be updated
+    const todo = await Todo.findById(id)
+    // update todos completed property
+    todo.completed = true
+    todo.save()// save changes
+     res.redirect("/") //back to main page 
+
+})
 ////////////////////////
 // Server Listener
 ///////////////////////
